@@ -1,37 +1,26 @@
-import React from 'react'
-import { auth } from '@clerk/nextjs/server'
-import { UserButton } from '@clerk/nextjs';
-import { MainNav } from '@/components/main-nav';
-import StoreSwitcher from '@/components/store-switcher';
-import { redirect } from 'next/navigation'
-import prismadb from '@/lib/prismadb';
-import { ThemeToggle } from '@/components/theme-toggle';
+import Container from "@/components/ui/container";
+import Link from "next/link";
+import { MainNav } from "@/components";
+import getCategories from "@/actions/get-categories";
+import NavbarActions from "./navbar-actions";
+
+export const revalidate = 0;
 
 const Navbar = async () => {
-  const { userId } = await auth();
+    const categories = await getCategories();
 
-  if(!userId) {
-    redirect("/sign-in")
-  }
-
-  const stores = await prismadb?.store.findMany({
-    where: {
-      userId,
-    }
-  })
-
-  return (
-    <div className='border-b'>
-        <div className='flex items-center h-16 px-4'>
-            <StoreSwitcher items={stores} />
-            <MainNav className='mx-6' />
-            <div className='flex items-center ml-auto space-x-4'>
-              <ThemeToggle />
-                <UserButton afterSignOutUrl='/'/>
-            </div>
+    return (
+        <div className="border-b">
+            <Container>
+                <div className="relative flex items-center h-16 px-4 sm:px-6 lg:px-8">
+                    <Link href="/" className="flex ml-4 lg:ml-0 gap-x-2">
+                        <p className="text-xl font-bold">STORE</p>
+                    </Link>
+                    <MainNav data={categories || []} />
+                    <NavbarActions />
+                </div>
+            </Container>
         </div>
-    </div>
-  )
+    )
 }
-
-export default Navbar
+export default Navbar;
